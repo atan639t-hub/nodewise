@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nodewise deal room</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+:root{--bg:#eef3f1;--panel:#fff;--ink:#12302d;--mute:#5a706c;--line:#cfdcd8;--accent:#0f6b5f;--on:#fff;--warm:#f2a33a;--chg:#fdeccf;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1f1d;--panel:#142927;--ink:#e6f0ee;--mute:#92aaa5;--line:#25403c;--accent:#3fc2ae;--on:#06201c;--chg:#4a3a1a}}
+:root[data-theme="dark"]{--bg:#0e1f1d;--panel:#142927;--ink:#e6f0ee;--mute:#92aaa5;--line:#25403c;--accent:#3fc2ae;--on:#06201c;--chg:#4a3a1a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.15}
+.wrap{max-width:1080px;margin:0 auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+h1{font-size:26px}h1 i{display:inline-block;width:11px;height:11px;background:var(--warm);border-radius:50%;margin-right:8px}
+h2{font-size:18px;margin-bottom:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--panel)}
+.seg button{border:0;background:none;color:var(--ink);padding:6px 14px;border-radius:999px;font:500 14px "IBM Plex Sans",sans-serif;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on)}
+.steps{display:flex;gap:6px;margin:18px 0;flex-wrap:wrap}
+.steps span{flex:1;min-width:110px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);color:var(--mute);font-size:13px}
+.steps span.on{border-color:var(--accent);color:var(--ink);font-weight:500}
+.steps span.on:before{content:"\2713  "}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:18px;min-width:0}
+#thread{max-height:340px;overflow:auto;padding-right:4px}
+.m{max-width:88%;margin:0 0 10px;padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
+.m.John{margin-left:auto;background:var(--bg)}
+.m b{font-weight:500}.m small{color:var(--mute);display:block}
+.tag{margin-top:6px;font-size:13px;color:var(--accent);font-weight:500}
+.sys{text-align:center;color:var(--mute);font-size:13px;margin:0 0 10px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;color:var(--mute)}
+td.chg{background:var(--chg)}td.cur,th.cur{font-weight:500;color:var(--ink)}
+.issue{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.issue input{width:auto;margin:0}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:10px}
+input,textarea{display:block;width:100%;margin-top:4px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:400 15px "IBM Plex Sans",sans-serif}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:8px;padding:9px 16px;margin:0 8px 8px 0;background:var(--accent);color:var(--on);font:500 14px "IBM Plex Sans",sans-serif;cursor:pointer}
+.btn.g{background:none;color:var(--ink);border:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.mute{color:var(--mute)}.note{font-size:13px;color:var(--mute);margin:8px 0 0}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1><i></i>Nodewise deal room</h1>
+<div class="seg" role="group" aria-label="View as"><button id="vJane">Viewing as Jane</button><button id="vJohn">Viewing as John</button></div>
+</header>
+<div class="steps" id="steps"></div>
+
+<div class="grid">
+<div>
+<div class="card"><h2>Conversation</h2><div id="thread"></div></div>
+<div class="card" id="act"></div>
+</div>
+<div>
+<div class="card"><h2>Proposals side by side</h2><div class="scroll" id="cmp"></div><p class="note">Highlighted cells changed from the previous proposal.</p></div>
+<div class="card"><h2>Open issues</h2><div id="iss"></div></div>
+<div class="card"><h2>Market reference</h2><div id="mkt"></div></div>
+</div>
+</div>
+</div>
+
+<script>
+var LIST=12000,SRV=8,PLACE="John's office";
+var offers=[{by:"Jane",p:7200,c:15,y:5},{by:"John",p:10200,c:15,y:5},{by:"Jane",p:8200,c:20,y:5},{by:"John",p:9400,c:18,y:5},{by:"Jane",p:8800,c:20,y:5},{by:"John",p:9000,c:20,y:5}];
+var msgs=[
+{sys:1,x:"Jane booked a discovery call for 3:00 PM, 6 Oct 2025."},
+{by:"John",t:"Mon 6 Oct, 4:10 PM",x:"Hi Jane, thanks for booking the 3 PM call. Before we talk numbers, how many servers do you run, and which SaaS tools would you like connected?"},
+{by:"Jane",t:"Mon 6 Oct, 6:45 PM",x:"Hi John, thanks for reaching out. We are an SME with 8 servers and need 15 connectors to our SaaS tools, with room to grow."},
+{by:"Jane",t:"Tue 7 Oct, 9:30 AM",x:"We are ready to commit to a 5-year plan billed annually, so we hope the price can reflect that. Our proposal is attached.",o:1},
+{by:"John",t:"Tue 7 Oct, 1:15 PM",x:"Thank you Jane, a long commitment really helps us plan. Let me check what we can offer and I will come back to you tomorrow."},
+{by:"John",t:"Wed 8 Oct, 11:05 AM",x:"Thanks for waiting. For reference, renting dedicated servers in Singapore runs about S$44 to S$80 a month at entry level and S$170 to S$450 at mid-range, before power (S$10 to S$60+), rack space, software and support. Our price bundles monitoring, backups and support, so I am proposing the counter-proposal attached.",o:2},
+{by:"Jane",t:"Wed 8 Oct, 4:20 PM",x:"Thanks John, the hidden costs are a fair point. Since we would stay five years, could we bring the price down and include more connectors? We would like 20.",o:3},
+{by:"John",t:"Thu 9 Oct, 10:00 AM",x:"I can add connectors, but each integration adds support work. A self-run setup would still cost you far more each month, so I have kept the price fair. Here is a revised counter-proposal with 18 connectors.",o:4},
+{by:"Jane",t:"Thu 9 Oct, 2:40 PM",x:"That is closer. If you can keep 20 connectors and lock the price for the first three years, we can go to S$8,800 a year.",o:5},
+{by:"John",t:"Fri 10 Oct, 9:30 AM",x:"A price lock is reasonable for a 5-year term. I can do S$9,000 a year with 20 connectors and the 3-year lock.",o:6},
+{sys:1,x:"Price lock after year 3 agreed and closed."}];
+var issues=[{n:"Price per year",d:0},{n:"Number of connectors",d:0},{n:"Price lock after year 3",d:1},{n:"Billing: annual, 5-year term",d:1}];
+var view="Jane",turn="Jane",accepted=false,meeting=null;
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function S(n){return "S$"+Math.round(n).toLocaleString("en-SG")}
+function other(n){return n==="Jane"?"John":"Jane"}
+function render(){
+$("vJane").setAttribute("aria-pressed",view==="Jane");$("vJohn").setAttribute("aria-pressed",view==="John");
+var idx=meeting?3:accepted?2:1;
+$("steps").innerHTML=["Booked","Discussing","Terms agreed","Meeting set"].map(function(s,i){return '<span class="'+(i<=idx?'on':'')+'">'+s+'</span>'}).join("");
+$("thread").innerHTML=msgs.map(function(m){
+if(m.sys)return '<p class="sys">'+esc(m.x)+'</p>';
+var o=m.o?offers[m.o-1]:null;
+return '<div class="m '+m.by+'"><b>'+m.by+'</b><small>'+m.t+'</small>'+esc(m.x)+(o?'<div class="tag">'+(m.by==="Jane"&&m.o===1?'Proposal':'Counter-proposal')+' '+m.o+': '+S(o.p)+' a year, '+o.c+' connectors</div>':'')+'</div>'}).join("");
+$("thread").scrollTop=1e6;
+var h='<table><tr><th></th>';
+offers.forEach(function(o,i){h+='<th'+(i===offers.length-1?' class="cur"':'')+'>#'+(i+1)+' '+o.by+'</th>'});
+h+='</tr>';
+[["Price a year",function(o){return S(o.p)},"p"],["Per month",function(o){return S(o.p/12)},"p"],["Servers",function(){return SRV}],["Connectors",function(o){return o.c},"c"],["Term",function(o){return o.y+" years"}],["Discount vs list",function(o){return Math.round((1-o.p/LIST)*100)+"%"},"p"],["Total over term",function(o){return S(o.p*o.y)},"p"]].forEach(function(r){
+h+='<tr><th>'+r[0]+'</th>';
+offers.forEach(function(o,i){var ch=i>0&&r[2]&&offers[i-1][r[2]]!==o[r[2]];h+='<td class="'+(ch?'chg ':'')+(i===offers.length-1?'cur':'')+'">'+r[1](o)+'</td>'});
+h+='</tr>'});
+$("cmp").innerHTML=h+'</table>';
+$("iss").innerHTML=issues.map(function(s,i){return '<label class="issue" style="margin:0;color:var(--ink)"><input type="checkbox" data-i="'+i+'"'+(s.d?' checked':'')+'> '+s.n+'</label>'}).join("");
+var cur=offers[offers.length-1];
+$("mkt").innerHTML='<div class="scroll"><table><tr><th>Rented dedicated server</th><th>Per month</th></tr><tr><td>Entry level</td><td>S$44 to S$80</td></tr><tr><td>Mid-range</td><td>S$170 to S$450</td></tr><tr><td>High-scale enterprise</td><td>S$800+</td></tr></table></div>'+
+'<p class="note"><b>Hidden costs:</b> power and cooling S$10 to S$60+ a month, rack space in Singapore, and software, backups and IT support billed separately.</p>'+
+'<p class="note">For '+SRV+' servers, entry-level rental alone is S$'+(44*SRV)+' to S$'+(80*SRV)+' a month. Current proposal: '+S(cur.p/12)+' a month.</p>'+
+'<p class="note">Source: figures John quotes for rented dedicated servers (e.g. Kimsufi, OVHcloud), not Dell hardware.</p>';
+var a="";
+if(meeting){a='<h2>Meeting set</h2><p>In person at '+PLACE+' on '+esc(meeting.d)+' at '+esc(meeting.t)+' to close the deal and cover remaining concerns.</p>'}
+else if(accepted){
+var open=issues.filter(function(s){return !s.d}).length;
+a='<h2>Close the deal</h2>';
+a+=open?'<p class="mute">Terms are agreed. Resolve '+open+' open issue'+(open>1?'s':'')+' to set the meeting.</p>':'<p>All issues resolved. Propose an in-person meeting at '+PLACE+'.</p><div class="two"><label>Date<input id="md" type="date"></label><label>Time<input id="mt" type="time"></label></div><button class="btn" data-a="meet">Propose meeting</button>';
+}else{
+a='<h2>Reply as '+view+'</h2><label>Message<textarea id="tx" rows="3" placeholder="Write a message"></textarea></label><button class="btn g" data-a="msg">Send message</button>';
+if(view===turn){a+='<div class="two"><label>New price a year (S$)<input id="np" type="number" min="1" value="'+cur.p+'"></label><label>Connectors<input id="nc" type="number" min="1" value="'+cur.c+'"></label></div><button class="btn" data-a="counter">Send counter-proposal</button><button class="btn g" data-a="accept">Accept proposal '+offers.length+'</button>'}
+else a+='<p class="note">Waiting for '+turn+' to answer proposal '+offers.length+'. Switch the view to reply as '+turn+'.</p>';
+}
+$("act").innerHTML=a}
+function add(m){msgs.push(m)}
+document.addEventListener("click",function(e){
+var t=e.target,a=t.dataset&&t.dataset.a;
+if(t.id==="vJane"){view="Jane";render();return}
+if(t.id==="vJohn"){view="John";render();return}
+if(!a)return;
+var tx=$("tx")?$("tx").value.trim():"";
+if(a==="msg"){if(!tx)return;add({by:view,t:"Just now",x:tx})}
+if(a==="counter"){var p=+$("np").value,c=+$("nc").value;if(!(p>0&&c>0))return;offers.push({by:view,p:p,c:c,y:5});add({by:view,t:"Just now",x:tx||"Counter-proposal attached.",o:offers.length});turn=other(view)}
+if(a==="accept"){accepted=true;issues[0].d=1;issues[1].d=1;add({sys:1,x:view+" accepted proposal "+offers.length+": "+S(offers[offers.length-1].p)+" a year for 5 years."})}
+if(a==="meet"){var d=$("md").value,tm=$("mt").value;if(!d||!tm)return;meeting={d:d,t:tm};add({sys:1,x:view+" proposed an in-person meeting at "+PLACE+" on "+d+" at "+tm+"."})}
+render()});
+document.addEventListener("change",function(e){var i=e.target.dataset&&e.target.dataset.i;if(i!==undefined){issues[+i].d=e.target.checked?1:0;render()}});
+render();
+</script>
+</body>
+</html>
