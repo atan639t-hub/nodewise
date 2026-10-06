@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nodewise: data services for your servers</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+:root{--bg:#eef3f1;--panel:#fff;--ink:#12302d;--mute:#5a706c;--line:#cfdcd8;--accent:#0f6b5f;--accent-ink:#fff;--warm:#f2a33a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1f1d;--panel:#142927;--ink:#e6f0ee;--mute:#92aaa5;--line:#25403c;--accent:#3fc2ae;--accent-ink:#06201c}}
+:root[data-theme="dark"]{--bg:#0e1f1d;--panel:#142927;--ink:#e6f0ee;--mute:#92aaa5;--line:#25403c;--accent:#3fc2ae;--accent-ink:#06201c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+.logo{font:800 22px "Bricolage Grotesque",sans-serif;text-decoration:none}
+.logo i{display:inline-block;width:12px;height:12px;background:var(--warm);border-radius:50%;margin-right:8px}
+nav a.l{margin-left:20px;text-decoration:none;color:var(--mute)}
+.btn{display:inline-block;background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:11px 20px;font:500 16px "IBM Plex Sans",sans-serif;text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:56px 0 72px}
+.hero h1{font-size:clamp(36px,5.5vw,62px);font-weight:800;letter-spacing:-.02em}
+.hero p{font-size:19px;color:var(--mute);max-width:46ch;margin:20px 0 28px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;font-size:14px}
+.panel h3{font-size:16px;margin-bottom:10px}
+.row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
+.row b{font-weight:500}.ok{color:var(--accent)}.warn{color:#b86a00}
+@media(prefers-color-scheme:dark){.warn{color:var(--warm)}}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);width:0;animation:fill 1.4s ease-out forwards}
+@keyframes fill{to{width:var(--w)}}
+@media(prefers-reduced-motion:reduce){.bar span{animation:none;width:var(--w)}}
+section{padding:56px 0}
+h2{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:10px 0 0;max-width:56ch}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:32px}
+.feat h3{font-size:20px;margin-bottom:6px}.feat p{margin:0;color:var(--mute)}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:4px;margin-top:24px;background:var(--panel)}
+.toggle button{border:0;background:transparent;color:var(--ink);padding:8px 18px;border-radius:999px;font:500 15px "IBM Plex Sans",sans-serif;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column}
+.plan.pop{border:2px solid var(--accent)}
+.plan h3{font-size:22px}.price{font:700 38px "Bricolage Grotesque",sans-serif;margin:12px 0 0}
+.price small{font:400 14px "IBM Plex Sans",sans-serif;color:var(--mute)}
+.save{min-height:22px;color:var(--accent);font-size:14px}
+.plan ul{list-style:none;padding:0;margin:14px 0 20px;flex:1}
+.plan li{padding:6px 0;border-top:1px solid var(--line);font-size:15px}
+.plan li.no{color:var(--mute);text-decoration:line-through}
+.sched{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:28px}
+label{display:block;font-size:14px;color:var(--mute);margin-bottom:12px}
+input,select{display:block;width:100%;margin-top:4px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:400 16px "IBM Plex Sans",sans-serif}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.list{list-style:none;padding:0;margin:0}
+.list li{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px}
+.list small{color:var(--mute);display:block}
+.empty{color:var(--mute)}
+.rm{background:none;border:0;color:var(--mute);cursor:pointer;font-size:14px}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--mute);font-size:14px}
+@media(max-width:900px){.plans{grid-template-columns:1fr 1fr}.hero,.sched{grid-template-columns:1fr}.feat{grid-template-columns:1fr}}
+@media(max-width:560px){.plans{grid-template-columns:1fr}nav a.l{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><a class="logo" href="#"><i></i>Nodewise</a><div><a class="l" href="#pricing">Pricing</a><a class="l" href="#meetings">Meetings</a><a class="btn" style="margin-left:20px" href="#pricing">Start free</a></div></nav>
+
+<header class="hero">
+<div>
+<h1>Your servers already hold the answers. Nodewise reads them.</h1>
+<p>Collect, clean and report on server data, then bring your stakeholders into the room with scheduling and business email built in.</p>
+<a class="btn" href="#pricing">Start free</a> <a class="btn ghost" href="#meetings">Book a meeting</a>
+</div>
+<div class="panel" aria-label="Sample dashboard">
+<h3>Live fleet summary (sample)</h3>
+<div class="row"><b>web-prod-01</b><span class="ok">Healthy</span><span>CPU 34%</span></div>
+<div class="row"><b>db-primary</b><span class="warn">Disk 82%</span><span>CPU 61%</span></div>
+<div class="row"><b>queue-02</b><span class="ok">Healthy</span><span>CPU 18%</span></div>
+<div style="margin-top:12px">Nightly export to warehouse</div>
+<div class="bar"><span style="--w:92%"></span></div>
+</div>
+</header>
+
+<section>
+<h2>Server data, without the pipeline work</h2>
+<div class="feat">
+<div><h3>Collect</h3><p>Install one agent and logs, metrics and database stats flow into one place.</p></div>
+<div><h3>Clean and store</h3><p>Nodewise removes duplicates, fixes formats and keeps history for as long as your plan allows.</p></div>
+<div><h3>Report and share</h3><p>Send clear summaries to stakeholders and meet them right from the dashboard.</p></div>
+</div>
+</section>
+
+<section id="pricing">
+<h2>Pricing</h2>
+<p class="sub">Start free. Upgrade when you need more servers, mailboxes or meetings.</p>
+<div class="toggle" role="group" aria-label="Billing period">
+<button id="bm" aria-pressed="true">Monthly</button><button id="by" aria-pressed="false">Yearly (2 months free)</button>
+</div>
+<div class="plans" id="plans"></div>
+</section>
+
+<section id="meetings">
+<h2>Schedule a stakeholder meeting</h2>
+<p class="sub">Try the scheduler. Meetings are saved in this browser only, as a preview of the paid feature.</p>
+<div class="sched">
+<form id="mf" onsubmit="return false">
+<label>Stakeholder name<input id="n" required></label>
+<label>Stakeholder email<input id="e" type="email" required></label>
+<div class="two"><label>Date<input id="d" type="date" required></label><label>Time<input id="t" type="time" required></label></div>
+<label>Topic<select id="tp"><option>Monthly data review</option><option>Incident report</option><option>Capacity planning</option><option>Budget sign-off</option></select></label>
+<button class="btn" id="add" type="button">Schedule meeting</button>
+<p id="msg" role="status" class="empty"></p>
+</form>
+<div><h3 style="font-size:20px;margin-bottom:12px">Upcoming meetings</h3><ul class="list" id="ml"></ul></div>
+</div>
+</section>
+</div>
+
+<footer><div class="wrap">© 2026 Nodewise. Business email on every paid plan: you@yourcompany.com.</div></footer>
+
+<script>
+var P=[
+{n:"Free",m:0,y:0,f:[["1 server",1],["7-day data history",1],["2 stakeholder meetings a month",1],["Business email",0]]},
+{n:"Starter",m:19,y:190,f:[["5 servers",1],["30-day data history",1],["10 stakeholder meetings a month",1],["1 business email mailbox",1]]},
+{n:"Team",m:49,y:490,pop:1,f:[["25 servers",1],["1-year data history",1],["Unlimited stakeholder meetings",1],["5 business email mailboxes",1]]},
+{n:"Business",m:119,y:1190,f:[["Unlimited servers",1],["Unlimited data history",1],["Unlimited stakeholder meetings",1],["25 business email mailboxes",1]]}];
+var yearly=false;
+function render(){
+var h="";P.forEach(function(p){
+var price=p.m===0?"$0":"$"+(yearly?p.y:p.m);
+var per=p.m===0?"forever":(yearly?"per year":"per month");
+var save=(yearly&&p.m)?"Save $"+(p.m*12-p.y)+" a year":"";
+h+='<div class="plan'+(p.pop?' pop':'')+'"><h3>'+p.n+(p.pop?' · Popular':'')+'</h3><div class="price">'+price+' <small>'+per+'</small></div><div class="save">'+save+'</div><ul>';
+p.f.forEach(function(f){h+='<li'+(f[1]?'':' class="no"')+'>'+f[0]+'</li>'});
+h+='</ul><a class="btn'+(p.m?'':' ghost')+'" href="#meetings">'+(p.m?'Choose '+p.n:'Start free')+'</a></div>'});
+document.getElementById("plans").innerHTML=h;
+document.getElementById("bm").setAttribute("aria-pressed",!yearly);
+document.getElementById("by").setAttribute("aria-pressed",yearly)}
+document.getElementById("bm").onclick=function(){yearly=false;render()};
+document.getElementById("by").onclick=function(){yearly=true;render()};
+render();
+
+var M=[];
+try{M=JSON.parse(localStorage.getItem("nw-meetings")||"[]")}catch(e){M=[]}
+function save(){try{localStorage.setItem("nw-meetings",JSON.stringify(M))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function list(){
+var ul=document.getElementById("ml");
+if(!M.length){ul.innerHTML='<li class="empty">No meetings yet. Fill in the form to add one.</li>';return}
+M.sort(function(a,b){return (a.d+a.t)<(b.d+b.t)?-1:1});
+ul.innerHTML=M.map(function(m,i){return '<li><div><b>'+esc(m.tp)+'</b><small>'+esc(m.n)+' · '+esc(m.e)+'</small><small>'+esc(m.d)+' at '+esc(m.t)+'</small></div><button class="rm" data-i="'+i+'">Cancel</button></li>'}).join("");
+ul.querySelectorAll(".rm").forEach(function(b){b.onclick=function(){M.splice(+b.dataset.i,1);save();list()}})}
+document.getElementById("add").onclick=function(){
+var f=document.getElementById("mf"),msg=document.getElementById("msg");
+if(!f.checkValidity()){f.reportValidity();msg.textContent="Complete every field to schedule the meeting.";return}
+M.push({n:n.value,e:e.value,d:d.value,t:t.value,tp:tp.value});save();list();
+msg.textContent="Meeting scheduled with "+n.value+".";f.reset()};
+list();
+</script>
+</body>
+</html>
